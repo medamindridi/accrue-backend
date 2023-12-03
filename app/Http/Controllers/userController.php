@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 class userController extends Controller
 {
     public function getUsers(){
-        $users = User::with(["achievements","xps"])->get();
+        $users = User::with(["achievements","xps","stats"])->get();
 
         return response()->json($users);
     }
@@ -61,6 +61,15 @@ class userController extends Controller
         $xp->Category = $data["category"];
         $xp->Amount = $data["amount"];
         $xp->save();
+        if($data["amount"]==1000){
+            $achievement = Achievement::where("user_id",$data["user_id"])->where("type","xp");
+            if(!empty($achievement)){
+                $achievement = new Achievement;
+                $achievement->user_id = $data["user_id"];
+                $achievement->type="xp";
+                $achievement->save();
+            }
+        }
         return response()->json($xp);
     }
     public function departements(){
